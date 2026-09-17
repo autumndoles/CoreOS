@@ -16,15 +16,14 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-sudo apt-get install -y \
-  gcc \
-  gcc-multilib \
-  libc6-dev-i386 \
-  binutils \
-  grub-pc-bin \
-  grub-common \
-  xorriso \
-  mtools
+          sudo apt-get install -y \
+            gcc \
+            gcc-multilib \
+            libc6-dev-i386 \
+            binutils \
+            grub-pc-bin \
+            grub-common \
+            xorriso
 
       - name: Build bootloader
         run: |
