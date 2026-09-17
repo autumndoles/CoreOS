@@ -1,0 +1,82 @@
+```yaml
+name: Build MyOS
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            grub-pc-bin \
+            grub-common \
+            xorriso \
+            qemu-system-x86
+
+      - name: Build i686 cross compiler
+        run: |
+          wget https://ftp.gnu.org/gnu/binutils/binutils-2.45.tar.xz
+          tar -xf binutils-2.45.tar.xz
+
+          mkdir binutils-build
+          cd binutils-build
+
+          ../binutils-2.45/configure \
+            --target=i686-elf \
+            --prefix="$HOME/opt/cross" \
+            --with-sysroot \
+            --disable-nls \
+            --disable-werror
+
+          make -j2
+          make install
+
+          cd ..
+
+          wget https://ftp.gnu.org/gnu/gcc/gcc-15.2.0/gcc-15.2.0.tar.xz
+          tar -xf gcc-15.2.0.tar.xz
+
+          mkdir gcc-build
+          cd gcc-build
+
+          ../gcc-15.2.0/configure \
+            --target=i686-elf \
+            --prefix="$HOME/opt/cross" \
+            --disable-nls \
+            --enable-languages=c \
+            --without-headers
+
+          make all-gcc -j2
+          make all-target-libgcc -j2
+          make install-gcc
+          make install-target-libgcc
+
+      - name: Add cross compiler to PATH
+        run: |
+          echo "$HOME/opt/cross/bin" >> "$GITHUB_PATH"
+
+      - name: Build kernel
+        run: make
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyOS-ISO
+          path: myos.iso
+
+      - name: Upload kernel binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyOS-Kernel
+          path: kernel.bin
+```
