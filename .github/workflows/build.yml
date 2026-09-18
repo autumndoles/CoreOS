@@ -65,19 +65,6 @@ jobs:
           name: CoreOS-Kernel
           path: kernel.bin
           if-no-files-found: error
-```
-
-### What this should produce
-
-After the workflow finishes:
-
-**Actions → Build CoreOS Kernel → Build Kernel → Artifacts**
-
-You should see:
-
-`CoreOS-Kernel`
-
-Inside it:
 
 `kernel.bin`
 
